@@ -1,0 +1,10 @@
+{
+  "name": "example-dApp",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "motemotech <i.am.nicoshark@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@nicoshark/contracts": "^1.0.1"
+  }
+}
