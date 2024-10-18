@@ -1,2 +1,2 @@
 forge-std/=lib/forge-std/src/
-@openpassport-contracts/=node_modules/@nicoshark/contracts/src
+@openpassport-contracts/=node_modules/@openpassport/contracts/contracts/
