@@ -34,11 +34,11 @@ contract Boilerplate is ERC721Enumerable, IBoilerplate {
         excludeCountries = _excludeCountries;
     }
 
-    function verify(
+    function mint(
         IOpenPassportVerifier.OpenPassportAttestation memory attestation
-    ) public returns (IOpenPassportVerifier.PassportAttributes memory) {
-        
-        // Set the selectors for the attributes to be disclosed
+    ) public {
+
+        // Read enabled settings and set the selectors
         uint256[] memory selectors = new uint256[](4);
         uint256  index = 0;
 
@@ -56,20 +56,11 @@ contract Boilerplate is ERC721Enumerable, IBoilerplate {
         }
 
         uint256 combinedSelector = OpenPassportAttributeSelector.combineAttributeSelectors(selectors);
-        
-        // Call OpenPassportVerifier
+
         IOpenPassportVerifier.PassportAttributes memory passportAttributes = openPassportVerifier.verifyAndDiscloseAttributes(
             attestation,
             combinedSelector
         );
-
-        return passportAttributes;
-    }
-
-    function mint(
-        IOpenPassportVerifier.OpenPassportAttestation memory attestation
-    ) public {
-        IOpenPassportVerifier.PassportAttributes memory passportAttributes = verify(attestation);
         address addr = address(uint160(OpenPassportAttributeHandler.extractUserIdentifier(attestation)));
         uint256 newTokenId = totalSupply();
         _mint(addr, newTokenId);
