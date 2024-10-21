@@ -5,6 +5,6 @@
   "author": "motemotech <i.am.nicoshark@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@openpassport/contracts": "^0.0.2"
+    "@openpassport/contracts": "^0.0.3"
   }
 }
