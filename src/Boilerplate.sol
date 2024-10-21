@@ -1,13 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.28;
 
 import {IOpenPassportVerifier} from "@openpassport-contracts/interfaces/IOpenPassportVerifier.sol";
 import {IGenericVerifier} from "@openpassport-contracts/interfaces/IGenericVerifier.sol";
-import {IBoilerplateContract} from "./IBoilerplateContract.sol";
+import {OpenPassportConstants} from "@openpassport-contracts/constants/OpenPassportConstants.sol";
+import {IBoilerplate} from "./IBoilerplate.sol";
 import "@openpassport-contracts/libraries/OpenPassportAttributeSelector.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openpassport-contracts/libraries/OpenPassportAttributeHandler.sol";
 
-contract BoilerplateContract is ERC721Enumerable, IBoilerplateContract {
+contract Boilerplate is ERC721Enumerable, IBoilerplate {
+
+    error SBT_CAN_NOT_BE_TRANSFERED();
     
     IOpenPassportVerifier public openPassportVerifier;
 
@@ -31,11 +35,10 @@ contract BoilerplateContract is ERC721Enumerable, IBoilerplateContract {
     }
 
     function verify(
-        uint256 proveVerifierId,
-        uint256 dscVerifierId,
-        IGenericVerifier.ProveCircuitProof memory pProof,
-        IGenericVerifier.DscCircuitProof memory dProof
+        IOpenPassportVerifier.OpenPassportAttestation memory attestation
     ) public returns (IOpenPassportVerifier.PassportAttributes memory) {
+        
+        // Set the selectors for the attributes to be disclosed
         uint256[] memory selectors = new uint256[](4);
         uint256  index = 0;
 
@@ -54,11 +57,9 @@ contract BoilerplateContract is ERC721Enumerable, IBoilerplateContract {
 
         uint256 combinedSelector = OpenPassportAttributeSelector.combineAttributeSelectors(selectors);
         
+        // Call OpenPassportVerifier
         IOpenPassportVerifier.PassportAttributes memory passportAttributes = openPassportVerifier.verifyAndDiscloseAttributes(
-            proveVerifierId, 
-            dscVerifierId, 
-            pProof, 
-            dProof,
+            attestation,
             combinedSelector
         );
 
@@ -66,12 +67,20 @@ contract BoilerplateContract is ERC721Enumerable, IBoilerplateContract {
     }
 
     function mint(
-        uint256 proveVerifierId,
-        uint256 dscVerifierId,
-        IGenericVerifier.ProveCircuitProof memory pProof,
-        IGenericVerifier.DscCircuitProof memory dProof
+        IOpenPassportVerifier.OpenPassportAttestation memory attestation
     ) public {
+        IOpenPassportVerifier.PassportAttributes memory passportAttributes = verify(attestation);
+        address addr = address(uint160(OpenPassportAttributeHandler.extractUserIdentifier(attestation)));
+        uint256 newTokenId = totalSupply();
+        _mint(addr, newTokenId);
+    }
 
+    function _update(address to, uint256 tokenId, address auth) internal override returns (address) {
+        if (to != address(0)) {
+            revert SBT_CAN_NOT_BE_TRANSFERED();
+        }
+
+        return super._update(to, tokenId, auth);
     }
 
 }

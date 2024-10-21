@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-interface IBoilerplateContract {
+interface IBoilerplate {
 
     struct MinimumAge {
         bool enabled;
