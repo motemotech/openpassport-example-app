@@ -1,19 +1,5 @@
-# Compiler files
-cache/
-out/
-
-# Ignores development broadcast logs
-!/broadcast
-/broadcast/*/31337/
-/broadcast/**/dry-run/
-/broadcast/DeployBoilerplate.sol/11155111/*
-!/broadcast/DeployBoilerplate.sol/11155111/run-latest.json
-
-# Docs
 docs/
 
-# Dotenv file
 .env
 
 node_modules
-package-lock.json

@@ -1,10 +1,10 @@
 {
   "name": "example-dApp",
   "version": "1.0.0",
-  "main": "index.js",
   "author": "motemotech <i.am.nicoshark@gmail.com>",
+  "private": true,
   "license": "MIT",
-  "dependencies": {
-    "@openpassport/contracts": "^0.0.7"
-  }
+  "workspaces": [
+    "packages/*"
+  ]
 }

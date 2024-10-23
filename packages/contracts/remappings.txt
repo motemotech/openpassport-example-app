@@ -1,0 +1,3 @@
+forge-std/=lib/forge-std/src/
+@openpassport-contracts/=../../node_modules/@openpassport/contracts/contracts/
+@openzeppelin/=../../node_modules/@openzeppelin/
