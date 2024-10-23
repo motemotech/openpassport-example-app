@@ -6,6 +6,8 @@ out/
 !/broadcast
 /broadcast/*/31337/
 /broadcast/**/dry-run/
+/broadcast/DeployBoilerplate.sol/11155111/*
+!/broadcast/DeployBoilerplate.sol/11155111/run-latest.json
 
 # Docs
 docs/
@@ -14,4 +16,4 @@ docs/
 .env
 
 node_modules
-yarn.lock
+package-lock.json
