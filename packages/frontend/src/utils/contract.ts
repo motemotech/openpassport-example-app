@@ -10,7 +10,6 @@ export const client = createPublicClient({
   transport: http(),
 });
 
-// コントラクトインスタンスの作成
 export const getBoilerplateContract = () => {
   return getContract({
     address: CONTRACT_ADDRESS,

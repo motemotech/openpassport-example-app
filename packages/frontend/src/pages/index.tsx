@@ -18,7 +18,7 @@ const Home: NextPage = () => {
 
   const handleMint = async () => {
     if (!isConnected || !walletClient) {
-      setError('Please connect your wallet.');
+      setError('Please connect your wallet!');
       return;
     }
 
@@ -34,7 +34,6 @@ const Home: NextPage = () => {
     try {
       const contract = getBoilerplateContract();
 
-      // 必要なアテステーションデータを準備
       const parsedAttestation = JSON.parse(attestation);
 
       const tx = await walletClient.writeContract({
@@ -70,12 +69,18 @@ const Home: NextPage = () => {
         </h1>
 
         <div className={styles.inputContainer}>
-          <label htmlFor="attestation">Attestation:</label>
+          <label
+            htmlFor="attestation"
+            style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}
+          >
+            Attestation:
+          </label>
           <textarea
             id="attestation"
             value={attestation}
             onChange={(e) => setAttestation(e.target.value)}
-            placeholder='{"key": "value"}'
+            rows={10}
+            cols={50}
             className={styles.textarea}
           />
         </div>
