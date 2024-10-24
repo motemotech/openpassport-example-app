@@ -16,6 +16,12 @@ const Home: NextPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [attestation, setAttestation] = useState<string>('');
 
+  const getOpenPassportVerifierAddress = async () => {
+    const contract = getBoilerplateContract();
+    const address = await contract.read.openPassportVerifier();
+    console.log('openPassportVerifier', address);
+  };
+
   const handleMint = async () => {
     if (!isConnected || !walletClient) {
       setError('Please connect your wallet!');
@@ -35,6 +41,15 @@ const Home: NextPage = () => {
       const contract = getBoilerplateContract();
 
       const parsedAttestation = JSON.parse(attestation);
+
+      const proveVerifierId = parsedAttestation.proveVerifierId;
+      console.log('proveVerifierId', proveVerifierId);
+      const dscVerifierId = parsedAttestation.dscVerifierId;
+      console.log('dscVerifierId', dscVerifierId);
+      const pProof = parsedAttestation.pProof;
+      console.log('pProof', pProof);
+      const dProof = parsedAttestation.dProof;
+      console.log('dProof', dProof);
 
       const tx = await walletClient.writeContract({
         ...contract,
@@ -84,6 +99,24 @@ const Home: NextPage = () => {
             className={styles.textarea}
           />
         </div>
+
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <button
+          onClick={getOpenPassportVerifierAddress}
+          style={{
+            padding: '0.75rem 1.5rem',
+            fontSize: '16px',
+            borderRadius: '4px',
+            border: 'none',
+            backgroundColor: '#28a745',
+            color: '#fff',
+            cursor: 'pointer',
+            marginTop: '1rem',
+          }}
+        >
+          Get openPassportVerifier Address
+        </button>
+      </div>
 
         <button onClick={handleMint} disabled={minting} className={styles.button}>
           {minting ? 'Minting...' : 'Mint NFT'}
