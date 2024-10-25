@@ -67,7 +67,8 @@ contract Boilerplate is ERC721Enumerable, IBoilerplate {
     }
 
     function _update(address to, uint256 tokenId, address auth) internal override returns (address) {
-        if (to != address(0)) {
+        address currentOwner = super._ownerOf(tokenId);
+        if (currentOwner != address(0)) {
             revert SBT_CAN_NOT_BE_TRANSFERED();
         }
 

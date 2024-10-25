@@ -3,7 +3,7 @@ import { sepolia } from 'viem/chains';
 import { getContract, publicActions } from 'viem';
 import BoilerplateABI from '../../abi/BoilerplateABI.json';
 
-const CONTRACT_ADDRESS = '0x7020933f26Fc11e40D47b797D8e662D7a79c330f';
+const CONTRACT_ADDRESS = '0xF55E1B9A423FC7b5759183B69510349382C11907';
 
 export const client = createPublicClient({
   chain: sepolia,
