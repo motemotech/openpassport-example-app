@@ -20,6 +20,8 @@ contract Boilerplate is ERC721Enumerable, IBoilerplate {
     Ofac public ofac;
     ExcludeCountries public excludeCountries;
 
+    mapping(uint256 => IOpenPassportVerifier.PassportAttributes) public disclosedAttributes;
+
     constructor(
         address _openPassportVerifier,
         MinimumAge memory _minimumAge,
@@ -64,6 +66,23 @@ contract Boilerplate is ERC721Enumerable, IBoilerplate {
         address addr = address(uint160(OpenPassportAttributeHandler.extractUserIdentifier(attestation)));
         uint256 newTokenId = totalSupply();
         _mint(addr, newTokenId);
+        disclosedAttributes[newTokenId] = passportAttributes;
+    }
+
+    function getDisclosedMinimumAge(uint256 tokenId) public view returns (uint256) {
+        return disclosedAttributes[tokenId].olderThan;
+    }
+
+    function getDisclosedNationality(uint256 tokenId) public view returns (string memory) {
+        return disclosedAttributes[tokenId].nationality;
+    }
+
+    function getDisclosedOfacResult(uint256 tokenId) public view returns (bool) {
+        return disclosedAttributes[tokenId].ofacResult;
+    }
+
+    function getDisclosedForbiddenCountries(uint256 tokenId) public view returns (bytes3[20] memory) {
+        return disclosedAttributes[tokenId].forbiddenCountries;
     }
 
     function _update(address to, uint256 tokenId, address auth) internal override returns (address) {

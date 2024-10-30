@@ -6,6 +6,8 @@ import styles from '../styles/Home.module.css';
 import { useAccount } from 'wagmi';
 import { usePublicClient, useWalletClient } from 'wagmi';
 import { getBoilerplateContract } from '../utils/contract';
+import { OpenPassportVerifier, OpenPassportAttestation } from '@openpassport/core';
+import { OpenPassportQRcode } from '@openpassport/qrcode';
 
 const Home: NextPage = () => {
   const { address, isConnected } = useAccount();
@@ -21,6 +23,11 @@ const Home: NextPage = () => {
     const address = await contract.read.openPassportVerifier();
     console.log('openPassportVerifier', address);
   };
+
+  const openPassportVerifier = new OpenPassportVerifier(
+    "prove_onchain",
+    "OpenPassportTest"
+  ).allowMockPassports();
 
   const handleMint = async () => {
     if (!isConnected || !walletClient) {
@@ -41,15 +48,6 @@ const Home: NextPage = () => {
       const contract = getBoilerplateContract();
 
       const parsedAttestation = JSON.parse(attestation);
-
-      const proveVerifierId = parsedAttestation.proveVerifierId;
-      console.log('proveVerifierId', proveVerifierId);
-      const dscVerifierId = parsedAttestation.dscVerifierId;
-      console.log('dscVerifierId', dscVerifierId);
-      const pProof = parsedAttestation.pProof;
-      console.log('pProof', pProof);
-      const dProof = parsedAttestation.dProof;
-      console.log('dProof', dProof);
 
       const tx = await walletClient.writeContract({
         ...contract,
@@ -100,6 +98,18 @@ const Home: NextPage = () => {
           />
         </div>
 
+        <div>
+          <OpenPassportQRcode
+            openPassportVerifier={openPassportVerifier}
+            userId="0x3a0F761126B034e3031d3C934eDA62251A07D7f1"
+            userIdType="hex"
+            appName="OpenPassportTest"
+            onSuccess={() => {
+              console.log('success');
+            }}
+          />
+        </div>
+
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         <button
           onClick={getOpenPassportVerifierAddress}
@@ -124,13 +134,14 @@ const Home: NextPage = () => {
 
         {txHash && (
           <p>
-            Success!{' '}
+            Success! Check on{' '}
             <a
               href={`https://sepolia.etherscan.io/tx/${txHash}`}
               target="_blank"
               rel="noopener noreferrer"
+              style={{ color: '#0d76fc', textDecoration: 'underline' }}
             >
-              Check on Etherscan
+              Etherscan
             </a>
           </p>
         )}
