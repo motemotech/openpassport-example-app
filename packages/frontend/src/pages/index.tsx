@@ -16,12 +16,22 @@ const Home: NextPage = () => {
   const [minting, setMinting] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [attestation, setAttestation] = useState<string>('');
+  const [attestationData, setAttestationData] = useState<OpenPassportAttestation | null>(null);
 
   const getOpenPassportVerifierAddress = async () => {
     const contract = getBoilerplateContract();
     const address = await contract.read.openPassportVerifier();
     console.log('openPassportVerifier', address);
+  };
+
+  const getUserId = (addr: string | undefined): string => {
+    return addr ? addr.startsWith('0x') ? addr.slice(2) : addr : '';
+  };
+  const userId = getUserId(address);
+
+  const handleAttestationSuccess = (attestation: OpenPassportAttestation) => {
+    setAttestationData(attestation);
+    console.log('Attestation received:', attestation);
   };
 
   const openPassportVerifier = new OpenPassportVerifier(
@@ -35,7 +45,7 @@ const Home: NextPage = () => {
       return;
     }
 
-    if (!attestation) {
+    if (!attestationData) {
       setError('Please enter an attestation.');
       return;
     }
@@ -47,12 +57,12 @@ const Home: NextPage = () => {
     try {
       const contract = getBoilerplateContract();
 
-      const parsedAttestation = JSON.parse(attestation);
+      // const parsedAttestation: OpenPassportAttestation = attestationData;
 
       const tx = await walletClient.writeContract({
         ...contract,
         functionName: 'mint',
-        args: [parsedAttestation],
+        args: [attestationData],
       });
 
       setTxHash(tx);
@@ -81,7 +91,7 @@ const Home: NextPage = () => {
           Welcome to <a href="https://www.openpassport.app/">OpenPassport</a> Example App!
         </h1>
 
-        <div className={styles.inputContainer}>
+        {/* <div className={styles.inputContainer}>
           <label
             htmlFor="attestation"
             style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}
@@ -96,21 +106,26 @@ const Home: NextPage = () => {
             cols={50}
             className={styles.textarea}
           />
-        </div>
+        </div> */}
 
         <div>
           <OpenPassportQRcode
             openPassportVerifier={openPassportVerifier}
-            userId="0x3a0F761126B034e3031d3C934eDA62251A07D7f1"
-            userIdType="hex"
+            userId={userId || ''}
+            userIdType='hex'
             appName="OpenPassportTest"
-            onSuccess={() => {
-              console.log('success');
-            }}
+            onSuccess={handleAttestationSuccess}
           />
         </div>
 
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        {attestationData && (
+          <div>
+            <h2>Attestation Details</h2>
+            <pre>{JSON.stringify(attestationData, null, 2)}</pre>
+          </div>
+        )}
+
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         <button
           onClick={getOpenPassportVerifierAddress}
           style={{
