@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "license": "MIT",
   "dependencies": {
-    "@openpassport/contracts": "^0.0.7",
+    "@openpassport/contracts": "^0.0.8",
     "@openzeppelin/contracts-upgradeable": "^5.1.0"
   }
 }

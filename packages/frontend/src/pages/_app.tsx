@@ -14,7 +14,9 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={client}>
-        <RainbowKitProvider>
+        <RainbowKitProvider
+          locale='en'
+        >
           <Component {...pageProps} />
         </RainbowKitProvider>
       </QueryClientProvider>

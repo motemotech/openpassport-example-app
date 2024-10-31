@@ -6,6 +6,8 @@ import styles from '../styles/Home.module.css';
 import { useAccount } from 'wagmi';
 import { usePublicClient, useWalletClient } from 'wagmi';
 import { getBoilerplateContract } from '../utils/contract';
+import { OpenPassportVerifier, OpenPassportAttestation } from '@openpassport/core';
+import { OpenPassportQRcode } from '@openpassport/qrcode';
 
 const Home: NextPage = () => {
   const { address, isConnected } = useAccount();
@@ -14,15 +16,36 @@ const Home: NextPage = () => {
   const [minting, setMinting] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [attestation, setAttestation] = useState<string>('');
+  const [attestationData, setAttestationData] = useState<OpenPassportAttestation | null>(null);
+
+  const getOpenPassportVerifierAddress = async () => {
+    const contract = getBoilerplateContract();
+    const address = await contract.read.openPassportVerifier();
+    console.log('openPassportVerifier', address);
+  };
+
+  const getUserId = (addr: string | undefined): string => {
+    return addr ? addr.startsWith('0x') ? addr.slice(2) : addr : '';
+  };
+  const userId = getUserId(address);
+
+  const handleAttestationSuccess = (attestation: OpenPassportAttestation) => {
+    setAttestationData(attestation);
+    console.log('Attestation received:', attestation);
+  };
+
+  const openPassportVerifier = new OpenPassportVerifier(
+    "prove_onchain",
+    "OpenPassportTest"
+  ).allowMockPassports();
 
   const handleMint = async () => {
     if (!isConnected || !walletClient) {
-      setError('Please connect your wallet.');
+      setError('Please connect your wallet!');
       return;
     }
 
-    if (!attestation) {
+    if (!attestationData) {
       setError('Please enter an attestation.');
       return;
     }
@@ -34,13 +57,12 @@ const Home: NextPage = () => {
     try {
       const contract = getBoilerplateContract();
 
-      // 必要なアテステーションデータを準備
-      const parsedAttestation = JSON.parse(attestation);
+      // const parsedAttestation: OpenPassportAttestation = attestationData;
 
       const tx = await walletClient.writeContract({
         ...contract,
         functionName: 'mint',
-        args: [parsedAttestation],
+        args: [attestationData],
       });
 
       setTxHash(tx);
@@ -69,16 +91,57 @@ const Home: NextPage = () => {
           Welcome to <a href="https://www.openpassport.app/">OpenPassport</a> Example App!
         </h1>
 
-        <div className={styles.inputContainer}>
-          <label htmlFor="attestation">Attestation:</label>
+        {/* <div className={styles.inputContainer}>
+          <label
+            htmlFor="attestation"
+            style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}
+          >
+            Attestation:
+          </label>
           <textarea
             id="attestation"
             value={attestation}
             onChange={(e) => setAttestation(e.target.value)}
-            placeholder='{"key": "value"}'
+            rows={10}
+            cols={50}
             className={styles.textarea}
           />
+        </div> */}
+
+        <div>
+          <OpenPassportQRcode
+            openPassportVerifier={openPassportVerifier}
+            userId={userId || ''}
+            userIdType='hex'
+            appName="OpenPassportTest"
+            onSuccess={handleAttestationSuccess}
+          />
         </div>
+
+        {attestationData && (
+          <div>
+            <h2>Attestation Details</h2>
+            <pre>{JSON.stringify(attestationData, null, 2)}</pre>
+          </div>
+        )}
+
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <button
+          onClick={getOpenPassportVerifierAddress}
+          style={{
+            padding: '0.75rem 1.5rem',
+            fontSize: '16px',
+            borderRadius: '4px',
+            border: 'none',
+            backgroundColor: '#28a745',
+            color: '#fff',
+            cursor: 'pointer',
+            marginTop: '1rem',
+          }}
+        >
+          Get openPassportVerifier Address
+        </button>
+      </div>
 
         <button onClick={handleMint} disabled={minting} className={styles.button}>
           {minting ? 'Minting...' : 'Mint NFT'}
@@ -86,13 +149,14 @@ const Home: NextPage = () => {
 
         {txHash && (
           <p>
-            Success!{' '}
+            Success! Check on{' '}
             <a
               href={`https://sepolia.etherscan.io/tx/${txHash}`}
               target="_blank"
               rel="noopener noreferrer"
+              style={{ color: '#0d76fc', textDecoration: 'underline' }}
             >
-              Check on Etherscan
+              Etherscan
             </a>
           </p>
         )}
